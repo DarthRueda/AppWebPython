@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import "macros.html" as macro %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+{{super()}}
+Welcome Flask App
+{% endblock %}
+
+{% block content %}
+<h1>Benvinguit a la app de Flask</h1>
+<p>Lorem Lipsum</p>
+
+{% if username %}
+    <h1>Benvingut {{username}}</h1>
+{% endif %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-5 mx-auto">
+            <form method="post">
+                {{ wtf.quick_form(login_form) }}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if ip %}
+    <h2>La IP del usuari es: {{ip}}</h2>
+{% else %}
+    <a href="{{url_for('index')}}">Crear Cookie</a>
+{% endif %}
+
+<ul>
+    {% for item in items %}
+        {{ macro.render_items(item) }}
+    {% endfor %}
+</ul>
+{% endblock %}
