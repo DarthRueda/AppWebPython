@@ -42,11 +42,6 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Register')
-
 @app.route('/information', methods=['GET', 'POST'])
 def information():
     user_ip_information = session.get('user_ip_information')
@@ -79,7 +74,13 @@ def information():
             else:
                 flash('Contrasenya incorrecta')
         else:
-            flash('No s\'ha trobat cap usuari')
+            # Crear un nuevo usuario si no existe
+            new_user = User(username=username, password=generate_password_hash(password))
+            db.session.add(new_user)
+            db.session.commit()
+            session['username'] = username
+            flash('Nou usuari creat i sessió iniciada correctament')
+            return redirect('/information')
 
     # Preparar el contexto con los datos
     context = {
@@ -92,24 +93,17 @@ def information():
     # Renderizar la plantilla con el contexto
     return render_template('information.html', **context)
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    register_form = RegisterForm()
-    if register_form.validate_on_submit():
-        username = register_form.username.data
-        password = generate_password_hash(register_form.password.data)
-        new_user = User(username=username, password=password)
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Usuario registrado correctamente')
-            return redirect('/information')
-        except Exception as e:
-            db.session.rollback()
-            logging.error(f"Error al registrar el usuario: {e}")
-            flash('Error al registrar el usuario')
-    
-    return render_template('register.html', form=register_form)
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    flash('Sessió tancada correctament')
+    return redirect('/information')
+
+@app.route('/remove_cookies')
+def remove_cookies():
+    session.pop('user_ip_information', None)
+    flash('Cookies eliminades correctament')
+    return redirect('/information')
 
 if __name__ == '__main__':
     if db is not None:

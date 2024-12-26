@@ -13,6 +13,8 @@ Welcome Flask App
 
 {% if username %}
     <h1>Benvingut {{username}}</h1>
+    <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
+    <a href="{{ url_for('remove_cookies') }}" class="btn btn-danger">Remove Cookies</a>
 {% endif %}
 <div class="container mt-5">
     <div class="row justify-content-center">
